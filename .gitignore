@@ -1,0 +1,9 @@
+node_modules/
+.env
+# 使用者投稿（同籤留言送審），個資性質不進公開 repo
+whispers/
+# 執行期快取與生成資產（大檔；backgrounds 是線上底圖池、cards 是預生成卡，皆不進版控）
+preview-cache/
+cards/
+cards-bg/
+style-previews/

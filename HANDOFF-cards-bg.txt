@@ -1,0 +1,66 @@
+═══════════════════════════════════════════════════════════════════
+交接：關聖帝君靈籤 100 首「祈福背景畫」產圖任務（folk.tw × 碧雲宮）
+交接人：Claude（folk.tw session）／2026-08-15
+═══════════════════════════════════════════════════════════════════
+
+【任務一句話】
+為關聖帝君靈籤 100 首，各產一張「無文字的祈福風格背景畫」，放到指定
+目錄後跑一個合成指令。籤詩文字不歸你管，會由既有的疊字層自動疊上。
+
+【輸出位置與命名】（一籤一檔，共 100 檔）
+
+  /root/folk-qian-api/cards-bg/moi_10478_碧雲宮/<poem_id>.png
+
+  <poem_id> ＝ guandi_lingqian-1 … guandi_lingqian-100。
+  正確清單請程式化取得（別用猜的）：
+    node -e "const p=require('/root/folk.tw/src/data/poems.json');
+    p.filter(x=>x.system==='guandi_lingqian').forEach(x=>console.log(x.id))"
+  同一份 poems.json 裡有每籤的四句（lines）、吉凶（fortune）、典故
+  （allusions[].note）——建議用來讓每張畫面的意象呼應該籤內容。
+
+【格式】
+  - PNG 或 JPG（副檔名 .png/.jpg/.jpeg 皆可，合成時一律輸出 PNG）
+  - 建議 1024×1536 直式；其他尺寸會被 cover 裁切成 1024×1536
+  - 每張 ≤ 8MB
+
+【內容鐵則（違反＝整張重做）】
+  1. 🔴 畫面中不得出現任何文字、字母、數字。
+     籤詩文字由確定性疊字層合成——圖像模型寫中文會寫錯字，
+     在這個站錯字＝杜撰，是最高紅線。
+  2. 疊字會佔用兩個區域，這兩區請保持相對素淨、勿放畫面主體：
+     - 右上角直書區：約佔右側 1/3 寬 × 上方 40% 高（半透明深色圓角框，
+       實際大小隨籤詩字數自動收斂，見 layout.mjs）
+     - 底部落款帶：整寬 × 底部約 11%（~172px）漸層深色橫帶
+  3. 風格：溫暖莊嚴的台灣廟宇祈福氛圍（金色祥雲、紅燈籠、香煙、
+     柔和金光；水彩／工筆混合）。可依各籤吉凶調性變化（上上籤明亮、
+     下籤沉穩），但整批要看得出是同一個系列。
+
+【完成後執行】（增量、idempotent，可反覆跑）
+
+  cd /root/folk-qian-api && node compose-cards.mjs
+
+  輸出說明：會回報「合成 N 張、跳過 M 張、不合契約 K 筆」。
+  不合契約的檔（檔名不是有效 poem_id 等）會被逐筆列出並跳過，
+  不會讓整批失敗——看到列出就修正該檔重跑。
+
+【驗收標準（做到這兩條才算完成）】
+  1. compose-cards.mjs 回報合成/已最新 共 100 張、不合契約 0 筆。
+  2. 抽驗線上網址回 200（poem_id 換幾支抽查）：
+     curl -s -o /dev/null -w '%{http_code}' \
+       "https://api.folk.tw/cards/moi_10478_%E7%A2%A7%E9%9B%B2%E5%AE%AE/guandi_lingqian-1.png"
+
+【邊界（請勿越界）】
+  - 只寫入 cards-bg/ 目錄；cards/ 是合成產物，由腳本管理，勿手動放檔。
+  - 勿修改 /root/folk-qian-api/ 下的 server.mjs、overlay.mjs、
+    compose-cards.mjs、.env、ecosystem.config.cjs；勿動 pm2。
+  - 勿 commit 任何東西進 /root/folk.tw repo——本任務完全不涉及該 repo，
+    前端已部署完畢，圖放好、合成跑完，網站按鈕會自動出現。
+  - 若你要用 OpenAI 產圖，用你自己拿到的金鑰與額度；
+    /root/folk-qian-api/.env 裡的金鑰是線上服務在用的，勿借用。
+
+【背景脈絡（僅供理解，不需行動）】
+  folk.tw 籤詩頁（帶 ?temple=moi_10478_碧雲宮 參數）有「祈福籤詩圖」
+  功能：訪客可上傳照片由 gpt-image-2 生成客製圖；本任務補的是
+  「不上傳照片直接下載」的預生成版。前端以 HEAD 探測
+  https://api.folk.tw/cards/<temple>/<poem>.png，有檔才顯示下載鈕。
+  完整規格：/root/folk.tw/docs/temple-partner-links.md §P2b

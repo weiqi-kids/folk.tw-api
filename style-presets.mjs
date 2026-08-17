@@ -1,0 +1,86 @@
+// 可重用的第 1 層風格預設。
+// 風格只控制色彩、材質暗示與裝飾幾何；第 2 層文字與第 3 層照片/底圖不在這裡。
+export const STYLE_PRESETS = [
+  {
+    key: '01-金霧祈福-臺灣廟宇工筆水彩',
+    name: '金霧祈福・臺灣廟宇工筆水彩',
+    decor: 'classic',
+    panel: { top: '#24170d', topOpacity: 0.76, bottom: '#655337', bottomOpacity: 0.52, stroke: '#e7c978', strokeOpacity: 0.55, inner: '#f4dfaa', innerOpacity: 0.18 },
+    footer: { color: '#21170d', midOpacity: 0.34, endOpacity: 0.82 },
+    accent: '#e7c978', accentStrong: '#f0d58d', badge: '#d0a75b', badgeText: '#2b1c0f',
+  },
+  {
+    key: '02-現代宋式文人山水風',
+    name: '現代宋式文人山水風',
+    decor: 'song',
+    panel: { top: '#18252b', topOpacity: 0.72, bottom: '#5f776e', bottomOpacity: 0.48, stroke: '#d8c98f', strokeOpacity: 0.54, inner: '#dbe2d4', innerOpacity: 0.2 },
+    footer: { color: '#1c2724', midOpacity: 0.28, endOpacity: 0.76 },
+    accent: '#d5c28c', accentStrong: '#ead9a7', badge: '#b49a66', badgeText: '#23342f',
+  },
+  {
+    key: '03-臺灣廟宇漆線雕金彩風',
+    name: '臺灣廟宇漆線雕・金彩風',
+    decor: 'lacquer',
+    panel: { top: '#3a0f12', topOpacity: 0.8, bottom: '#714327', bottomOpacity: 0.54, stroke: '#f0c75e', strokeOpacity: 0.64, inner: '#fbe3a8', innerOpacity: 0.2 },
+    footer: { color: '#2a0b0f', midOpacity: 0.34, endOpacity: 0.84 },
+    accent: '#f0c75e', accentStrong: '#ffe39a', badge: '#b8472f', badgeText: '#fff3d0',
+  },
+  {
+    key: '04-敦煌石窟絲路礦彩風',
+    name: '敦煌石窟・絲路礦彩風',
+    decor: 'dunhuang',
+    panel: { top: '#432d23', topOpacity: 0.76, bottom: '#9b6d45', bottomOpacity: 0.52, stroke: '#e7bf72', strokeOpacity: 0.58, inner: '#f4d49a', innerOpacity: 0.22 },
+    footer: { color: '#33231d', midOpacity: 0.32, endOpacity: 0.8 },
+    accent: '#d9ac5a', accentStrong: '#f2d18a', badge: '#9d623b', badgeText: '#fff0c2',
+  },
+  {
+    key: '05-現代民俗木版年畫風',
+    name: '現代民俗木版年畫風',
+    decor: 'woodblock',
+    panel: { top: '#2c3141', topOpacity: 0.78, bottom: '#657554', bottomOpacity: 0.52, stroke: '#d56c43', strokeOpacity: 0.66, inner: '#f4c27c', innerOpacity: 0.2 },
+    footer: { color: '#202333', midOpacity: 0.34, endOpacity: 0.8 },
+    accent: '#db744d', accentStrong: '#efbb72', badge: '#b54d39', badgeText: '#fff5d8',
+  },
+  {
+    key: '06-霓虹香火賽博龐克風',
+    name: '霓虹香火・賽博龐克風',
+    decor: 'cyber',
+    panel: { top: '#091726', topOpacity: 0.84, bottom: '#123e4e', bottomOpacity: 0.62, stroke: '#5cecff', strokeOpacity: 0.78, inner: '#ff4fce', innerOpacity: 0.34 },
+    footer: { color: '#06121e', midOpacity: 0.38, endOpacity: 0.88 },
+    accent: '#67f7ff', accentStrong: '#ff6bdc', badge: '#f2a83e', badgeText: '#15152b',
+  },
+  {
+    key: '07-神將英雄原創超級英雄漫畫風',
+    name: '神將英雄・原創超級英雄漫畫風',
+    decor: 'comic',
+    panel: { top: '#19264b', topOpacity: 0.82, bottom: '#6e2a3b', bottomOpacity: 0.58, stroke: '#ffd24a', strokeOpacity: 0.76, inner: '#fff0b0', innerOpacity: 0.24 },
+    footer: { color: '#17182b', midOpacity: 0.38, endOpacity: 0.86 },
+    accent: '#ffd24a', accentStrong: '#ffe97a', badge: '#d4483e', badgeText: '#fff8dd',
+  },
+  {
+    key: '08-星象魔法牌原創魔法占卜風',
+    name: '星象魔法牌・原創魔法占卜風',
+    decor: 'magic',
+    panel: { top: '#24325a', topOpacity: 0.78, bottom: '#755a9a', bottomOpacity: 0.56, stroke: '#f4dcff', strokeOpacity: 0.7, inner: '#dbf8ff', innerOpacity: 0.28 },
+    footer: { color: '#1d2244', midOpacity: 0.36, endOpacity: 0.84 },
+    accent: '#f1d9ff', accentStrong: '#fff5ac', badge: '#e7b7da', badgeText: '#2b2045',
+  },
+  {
+    key: '09-黃銅神工東方蒸汽龐克風',
+    name: '黃銅神工・東方蒸汽龐克風',
+    decor: 'brass',
+    panel: { top: '#1d2b2a', topOpacity: 0.8, bottom: '#75452f', bottomOpacity: 0.56, stroke: '#d9ab59', strokeOpacity: 0.7, inner: '#f4d69a', innerOpacity: 0.22 },
+    footer: { color: '#14201f', midOpacity: 0.36, endOpacity: 0.84 },
+    accent: '#dba650', accentStrong: '#f4ce72', badge: '#a7663d', badgeText: '#211915',
+  },
+  {
+    key: '10-琉璃天宮東方彩窗奇幻風',
+    name: '琉璃天宮・東方彩窗奇幻風',
+    decor: 'glass',
+    panel: { top: '#183a55', topOpacity: 0.76, bottom: '#7e395d', bottomOpacity: 0.54, stroke: '#a9f0e8', strokeOpacity: 0.7, inner: '#ffe19f', innerOpacity: 0.24 },
+    footer: { color: '#14253d', midOpacity: 0.36, endOpacity: 0.84 },
+    accent: '#9cefe6', accentStrong: '#ffe19b', badge: '#e37a63', badgeText: '#2a2033',
+  },
+];
+
+export const DEFAULT_STYLE = STYLE_PRESETS[0];
