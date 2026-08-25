@@ -24,6 +24,7 @@ import { overlaySvg } from './overlay.mjs';
 import { cardStyleSvg } from './style.mjs';
 import { STYLE_PRESETS, DEFAULT_STYLE } from './style-presets.mjs';
 import { submitWhisper, approvedFor } from './whispers.mjs';
+import { submitLead } from './leads.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 
@@ -169,6 +170,23 @@ app.post('/v1/whispers', express.urlencoded({ extended: false, limit: '4kb' }), 
   if (r.error) return res.status(400).json(r);
   whisperQuota.byIp.set(ip, n + 1);
   console.log(`[whisper] pending poem=${poem.id} id=${r.id}`);
+  res.json({ ok: true });
+});
+
+// 宮廟電子籤索取（2026-08-25，folk.tw /for-temples/ 表單）。表單編碼＝簡單請求免 CORS
+// preflight（同 whispers）。個資落點與 Slack 通知在 leads.mjs；每 IP 每日 3 件防灌。
+// ⚠️ 與 OPENAI_API_KEY 無關——healthz 503 時本端點照常收單，前端別拿 healthz 閘這個表單。
+let leadQuota = { day: taipeiDay(), byIp: new Map() };
+app.post('/v1/temple-lead', express.urlencoded({ extended: false, limit: '8kb' }), (req, res) => {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '?';
+  const day = taipeiDay();
+  if (leadQuota.day !== day) leadQuota = { day, byIp: new Map() };
+  const n = leadQuota.byIp.get(ip) ?? 0;
+  if (n >= 3) return res.status(429).json({ error: 'quota' });
+  const r = submitLead(req.body);
+  if (r.error) return res.status(400).json(r);
+  leadQuota.byIp.set(ip, n + 1);
+  console.log('[lead] 收到電子籤索取（內容在 Slack 與 leads 檔，log 不記個資）');
   res.json({ ok: true });
 });
 
