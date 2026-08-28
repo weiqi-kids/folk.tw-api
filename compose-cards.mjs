@@ -19,7 +19,7 @@ import { overlaySvg } from './overlay.mjs';
 import { cardStyleSvg } from './style.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const FOLK = process.env.FOLK_DIR || '/root/folk.tw';
+const FOLK = process.env.FOLK_DIR || '/mnt/folk-tw/folk.tw';
 const FORCE = process.argv.includes('--force');
 const W = 1024, H = 1536;
 

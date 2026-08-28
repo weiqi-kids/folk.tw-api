@@ -4,7 +4,7 @@
 //   GET  /healthz          200＝功能可用；503＝OPENAI_API_KEY 未設（前端據此整體隱藏 UI）
 //   POST /v1/qian-card     multipart {photo, poem, temple} → image/png
 //
-// 設計約束（見 /root/folk.tw/docs/temple-partner-links.md §P2）：
+// 設計約束（見 /mnt/folk-tw/folk.tw/docs/temple-partner-links.md §P2）：
 //   🔴 籤詩文字絕不交給圖像模型寫（中文會寫錯字，錯字＝杜撰）：
 //      OpenAI 只負責把照片轉成祈福風格畫面（prompt 明令不得出現文字），
 //      籤詩四句、廟名、出處由本服務用 sharp+SVG 確定性疊字（系統 Noto CJK 字型）。
@@ -12,7 +12,7 @@
 //   💰 濫用/成本閘門：每 IP 每日 IP_DAILY（預設 5）張、全站每日 DAILY_CAP（預設 80）張，
 //      超限回 429（前端顯示「今日名額已滿」）。額度以台北時區日界線重置。
 //
-// 資料源：直接讀 /root/folk.tw 的 poems.json 與 temple-partners.json（10 分鐘快取），
+// 資料源：直接讀 /mnt/folk-tw/folk.tw 的 poems.json 與 temple-partners.json（10 分鐘快取），
 //   只服務 active 合作廟＋真實存在的籤——兩者都不成立就 400。
 import express from 'express';
 import multer from 'multer';
@@ -29,7 +29,7 @@ import { submitLead } from './leads.mjs';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.PORT || 8495);
-const FOLK = process.env.FOLK_DIR || '/root/folk.tw';
+const FOLK = process.env.FOLK_DIR || '/mnt/folk-tw/folk.tw';
 const IP_DAILY = Number(process.env.IP_DAILY || 5);
 const DAILY_CAP = Number(process.env.DAILY_CAP || 80);
 const MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1';

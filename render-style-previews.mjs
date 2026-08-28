@@ -10,7 +10,7 @@ import { cardStyleSvg } from './style.mjs';
 import { STYLE_PRESETS } from './style-presets.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const FOLK = process.env.FOLK_DIR || '/root/folk.tw';
+const FOLK = process.env.FOLK_DIR || '/mnt/folk-tw/folk.tw';
 const PREVIEW_ROOT = join(ROOT, 'style-previews');
 const TEMPLE = 'moi_10478_碧雲宮';
 const FORCE = process.argv.includes('--force');

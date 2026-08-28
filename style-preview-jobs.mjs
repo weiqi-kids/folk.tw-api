@@ -8,7 +8,7 @@ import { STYLE_PRESETS } from './style-presets.mjs';
 import { buildBackgroundPrompt } from './style-prompts.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const FOLK = process.env.FOLK_DIR || '/root/folk.tw';
+const FOLK = process.env.FOLK_DIR || '/mnt/folk-tw/folk.tw';
 const PREVIEW_ROOT = join(ROOT, 'style-previews');
 const poems = JSON.parse(readFileSync(`${FOLK}/src/data/poems.json`, 'utf8'))
   .filter((p) => !p.draft && p.system === 'guandi_lingqian')
