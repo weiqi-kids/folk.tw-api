@@ -21,7 +21,7 @@
 //       ⛔ 不要改成用關鍵字判斷是不是投訴：猜錯的代價是對著抱怨的人推銷。
 import { execFile, execFileSync } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const OUTBOX = process.env.LEAD_OUTBOX_DIR || '/root/.config/folk-tw/lead-outbox';
@@ -29,7 +29,29 @@ const DRAFT_PY = process.env.GMAIL_DRAFT_PY || '/mnt/folk-tw/folk.tw-outreach/gm
 const DRAFT_VENV = process.env.GMAIL_DRAFT_VENV || '/mnt/folk-tw/folk.tw-outreach/.venv/bin/python';
 const SELF = 'service@yao.care';
 
-const ownerName = (row) => (row.temple ? `${row.temple} ${row.name}` : row.name);
+// 🔴 對方沒填宮廟名時，用 ref（他從哪一間廟的頁面點進來）補回廟名。
+//    2026-09-13 踩到：六筆有兩筆沒填 temple，草稿就整封只寫「貴宮」，而 ref 明明指得出
+//    聖善堂與南聖宮——**站上已經知道的事不要讓人再問一次**。
+//    ⚠️ 但那是**推測不是事實**：從某頁點進來不代表他就是那間廟的人（家玲那筆就是香客）。
+//    所以推測來的廟名一律另存 templeGuess，措辭上只能寫「您是從○○的頁面點進來的，
+//    想確認是不是這一間」，⛔ 不可以當成他的宮廟直接稱呼。
+const TEMPLES_JSON = process.env.FOLK_TEMPLES_JSON || '/mnt/folk-tw/folk.tw/src/data/temples.json';
+let templeIndex = null;
+function templeNameOf(id) {
+  if (!id) return '';
+  if (templeIndex === null) {
+    // 讀不到就退成空字串，**不要讓草稿因為讀不到別的 repo 的檔案而整個建不出來**。
+    try {
+      templeIndex = new Map(JSON.parse(readFileSync(TEMPLES_JSON, 'utf8')).map((t) => [t.id, t.name]));
+    } catch { templeIndex = new Map(); }
+  }
+  return templeIndex.get(id) ?? '';
+}
+
+const ownerName = (row) => {
+  const t = row.temple || templeNameOf(row.ref);
+  return t ? `${t} ${row.name}` : row.name;
+};
 
 /** 這一筆要寄給誰、主旨怎麼寫。純函式，好測。 */
 export function routeLead(row) {
@@ -44,11 +66,16 @@ export function routeLead(row) {
 
 /** 給對方看的正文（不含任何內部備註）。 */
 function replyBody(row) {
-  const who = row.temple ? `貴宮（${row.temple}）` : '貴宮';
+  const guess = row.temple ? '' : templeNameOf(row.ref);
+  const who = row.temple ? `貴宮（${row.temple}）` : guess ? `貴宮` : '貴宮';
+  const confirmLine = !row.temple && guess
+    ? `您是從「${guess}」的頁面點進來的，想先確認貴宮是不是這一間（如果不是，跟我說正確的宮廟名就好）。`
+    : '';
   return [
     `${row.name} 您好，`,
     '',
     '我是神酷（folk.tw）的負責人。您在我們網站留了資料，索取免費的電子籤貼紙，謝謝您。',
+    ...(confirmLine ? ['', confirmLine] : []),
     '',
     `電子籤是一張小貼紙，貼在籤詩或籤筒上，香客求完籤拿手機一碰，就會打開那支籤的白話解說`,
     '（不用裝 App、不用另外設定）。解說頁有籤詩原文、白話解說與典故，可以聽語音朗讀，也有多語版本。',
@@ -98,6 +125,8 @@ export function buildLeadLetter(row) {
       '',
       `> ${row.note}`,
       '',
+      `對方填的宮廟名：${row.temple || `（未填）——從來源頁推測是「${templeNameOf(row.ref) || '不明'}」，未經確認`}`,
+      '',
       '聯絡方式：'
         + [row.phone && `電話 ${row.phone}`, row.line && `LINE ${row.line}`,
            row.email && `Email ${row.email}`, row.address && `地址 ${row.address}`]
@@ -126,7 +155,7 @@ export function buildLeadLetter(row) {
     '## 寄件紀錄（內部）',
     '',
     `- 送單時間：${tw}（台北）`,
-    `- 來源頁：${row.ref ? `https://folk.tw/temples/${encodeURIComponent(row.ref)}/` : '直接進站'}`,
+    `- 來源頁：${row.ref ? `${templeNameOf(row.ref) || row.ref}　https://folk.tw/temples/${encodeURIComponent(row.ref)}/` : '直接進站'}`,
     `- 按鈕變體：${row.variant || '—'}`,
     `- 收件人判定：${r.reason}`,
   ];
