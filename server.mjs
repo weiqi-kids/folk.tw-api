@@ -4,6 +4,7 @@
 //   GET  /healthz          200＝功能可用；503＝OPENAI_API_KEY 未設（前端據此整體隱藏 UI）
 //   POST /v1/qian-card     multipart {photo, poem, temple} → image/png
 //   POST /v1/temple-lead   form   電子籤索取收單（個資，leads.mjs）
+//   POST /v1/temple-services form 宮廟服務時段追問（非個資，temple-services.mjs）
 //
 // 設計約束（見 /mnt/folk-tw/folk.tw/docs/temple-partner-links.md §P2）：
 //   🔴 籤詩文字絕不交給圖像模型寫（中文會寫錯字，錯字＝杜撰）：
@@ -26,6 +27,7 @@ import { cardStyleSvg } from './style.mjs';
 import { STYLE_PRESETS, DEFAULT_STYLE } from './style-presets.mjs';
 import { submitWhisper, approvedFor } from './whispers.mjs';
 import { submitLead } from './leads.mjs';
+import { submitTempleServices } from './temple-services.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 
@@ -191,13 +193,22 @@ app.post('/v1/temple-lead', express.urlencoded({ extended: false, limit: '8kb' }
   res.json({ ok: true });
 });
 
-// 宮廟服務時段追問（2026-09-14）🅤 **2026-09-25 站主裁示撤掉，路由已移除。**
-//   終局數字：上線 11 天、8 件收單、0 件回填（回收率 0%）。
-//   🔴 撤的理由是沒人填、不是壞掉：當天查證過端點健康、9 筆收單全部帶 ref（送出會被接受）、
-//   而 temple-services.jsonl 從來沒有被建立（該檔只在成功落檔時產生）＝一次都沒有人送出。
-//   前端區塊同日自 folk.tw 的 src/pages/for-temples/index.astro 移除，
-//   `pnpm letter:stats` 的回收率段一併移除。temple-services.mjs 留著沒刪（要復原改回來就好），
-//   但 **沒有任何路由指向它**。⚠️ 要再做同一件事別照原樣搬回來，同位置同問法已實測是 0。
+// 宮廟服務時段追問（2026-09-14，/for-temples/ 表單成功送出後才顯示的第二步）。
+// 🔴 刻意與 /v1/temple-lead 分開：不含個資、不建 Gmail 草稿、不計一件索取。
+//    分開的理由與「不可做成線上自助編輯」的約束在 temple-services.mjs 檔頭。
+let templeServicesQuota = { day: taipeiDay(), byIp: new Map() };
+app.post('/v1/temple-services', express.urlencoded({ extended: false, limit: '8kb' }), (req, res) => {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || '?';
+  const day = taipeiDay();
+  if (templeServicesQuota.day !== day) templeServicesQuota = { day, byIp: new Map() };
+  const n = templeServicesQuota.byIp.get(ip) ?? 0;
+  if (n >= 5) return res.status(429).json({ error: 'quota' });
+  const r = submitTempleServices(req.body);
+  if (r.error) return res.status(400).json(r);
+  templeServicesQuota.byIp.set(ip, n + 1);
+  console.log('[services] 收到宮廟服務時段（內容在 Slack 與 temple-services.jsonl）');
+  res.json({ ok: true });
+});
 
 app.get('/healthz', (req, res) => {
   if (!process.env.OPENAI_API_KEY) return res.status(503).json({ ok: false, reason: 'no_api_key' });
